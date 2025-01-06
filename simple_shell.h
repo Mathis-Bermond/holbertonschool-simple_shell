@@ -11,3 +11,29 @@
 #include <signal.h>
 #include <errno.h>
 
+/**
+* struct shell_info - Structure contenant les informations de la shell
+* @input: L'entrée de l'utilisateur
+* @args: Les arguments séparés par des espaces
+* @cmd_path: Le chemin de la commande à exécuter
+* @status: Le statut de la commande
+*/
+typedef struct shell_info
+{
+	char *input;
+
+	char **args;
+
+	char *cmd_path;
+
+	int status;
+
+} shell_info_t;
+
+void prompt(shell_info_t *info);
+void process_input(shell_info_t *info);
+void execute_command(shell_info_t *info);
+void free_shell_info(shell_info_t *info);
+
+#endif
+
