@@ -11,6 +11,12 @@
 #include <signal.h>
 #include <errno.h>
 
+
+int _strlen(char *s);
+char *_strdup(char *str);
+int _strcmp(char *s1, char *s2);
+
+
 /**
 * struct shell_info - Structure contenant les informations de la shell
 * @input: L'entrée de l'utilisateur

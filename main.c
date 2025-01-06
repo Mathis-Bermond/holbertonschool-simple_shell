@@ -28,17 +28,26 @@ void execute_command(shell_info_t *info)
         }
     }
     else
+{
+    /* Processus parent : attendre la fin du processus enfant */
+    if (waitpid(pid, &status, 0) == -1) /* Premier appel à waitpid */
     {
-        /* Processus parent : attendre la fin du processus enfant */
-        do {
-            if (waitpid(pid, &status, 0) == -1)
-            {
-                perror("waitpid");
-                exit(EXIT_FAILURE);
-            }
-        } while (!((status & 0x7F) == 0 || (status & 0x7F) == 0x7F));
-        info->status = status;  /* Mettre à jour le statut de la commande */
+        perror("waitpid");
+        exit(EXIT_FAILURE);
     }
+
+    while (!WIFEXITED(status) && !WIFSIGNALED(status)) /* Vérifie si le processus est terminé */
+    {
+        if (waitpid(pid, &status, 0) == -1)
+        {
+            perror("waitpid");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    info->status = status;  /* Mettre à jour le statut de la commande */
+}
+
 }
 
 /**
@@ -101,15 +110,15 @@ int main(void)
             input[nread - 1] = '\0';
 
         /* Vérifier si l'entrée est vide */
-        if (strlen(input) == 0)
+        if (_strlen(input) == 0)
             continue;
 
         /* Comparer pour "exit" et quitter si nécessaire */
-        if (strcmp(input, "exit") == 0)
+        if (_strcmp(input, "exit") == 0)
             break;
 
         /* Initialiser la structure */
-        info.input = strdup(input);  /* Allouer une copie de l'entrée */
+        info.input = _strdup(input);  /* Allouer une copie de l'entrée */
         if (!info.input)
         {
             perror("strdup");
