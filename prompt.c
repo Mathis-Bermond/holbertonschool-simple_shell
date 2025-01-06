@@ -10,6 +10,9 @@ void prompt(shell_info_t *info)
 
 	size_t len = 0;
 	ssize_t nread;
+	char *token;
+
+	int i = 0;
 
 	if (isatty(STDIN_FILENO))
 		write(STDOUT_FILENO, "$ ", 2);
@@ -28,9 +31,7 @@ void prompt(shell_info_t *info)
 	info->input = line;
 
 	/* Découper l'entrée en arguments ici, si nécessaire */
-	char *token = strtok(info->input, " ");
-
-	int i = 0;
+	token = strtok(info->input, " ");
 
 	while (token != NULL)
 	{
@@ -43,3 +44,4 @@ void prompt(shell_info_t *info)
 
 	free(line);
 }
+
