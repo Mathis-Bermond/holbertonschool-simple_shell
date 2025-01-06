@@ -1,0 +1,55 @@
+.TH SIMPLE_SHELL 1 "17 Dec 2024" 
+.SH NAME
+simple_shell \- command interpreter
+
+.SH SYNOPSIS
+simple_shell
+.RI [ options ]
+
+.SH DESCRIPTION
+simple_shell is a basic UNIX command interpreter that mimics the core functionalities of the shell. It reads user input, executes the commands, and displays the output.
+
+.SH OPTIONS
+There are various options available for commands, similar to the ls function. For instance, ls -l displays the files in a directory in a detailed, long format.
+
+.SH BUILT-IN COMMANDS
+.TP
+.B exit
+Exit the shell.
+.TP
+.B env
+List all the environment variables.
+.TP
+.B echo
+Print the argument on the stdout
+.TP
+.B pwd
+Display the path of the current directory
+.SH USAGE
+To start the shell, run:
+.EX
+$ ./prompt
+.EE
+
+.SH EXAMPLES
+Below, we will go through several examples demonstrating how to use the simple_shell and its basic functionalities
+
+.EX
+$ ./simple_shell
+(The shell starts and waits for user commands)
+
+$ ls -l
+total 12
+-rw-r--r-- 1 user user  4096 Jan  6 12:00 file1.txt
+-rw-r--r-- 1 user user  1024 Jan  5 11:30 file2.txt
+drwxr-xr-x 2 user user  4096 Jan  4 10:20 directory
+
+$ pwd
+/home/user/projects/simple_shell
+
+$ exit
+(The shell exits)
+
+
+.SH AUTHORS
+Jonas Jungling and Mathis Bermond
