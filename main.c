@@ -21,9 +21,9 @@ void execute_command(shell_info_t *info)
 	else if (pid == 0)
 	{
 		/* Processus enfant : exécuter la commande */
-		if (execvp(info->cmd_path, info->args) == -1)
+		if (execve(info->cmd_path, info->args) == -1)
 		{
-			perror("execvp");
+			perror("execve");
 			exit(EXIT_FAILURE);
 		}
 	}
