@@ -9,76 +9,76 @@
 */
 void execute_command(shell_info_t *info)
 {
-    pid_t pid;
-    int status;
+	pid_t pid;
+	int status;
 
-    pid = fork();
-    if (pid == -1)
-    {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
-    else if (pid == 0)
-    {
-        /* Processus enfant : exécuter la commande */
-        if (execvp(info->cmd_path, info->args) == -1)
-        {
-            perror("execvp");
-            exit(EXIT_FAILURE);
-        }
-    }
-    else
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	else if (pid == 0)
+	{
+		/* Processus enfant : exécuter la commande */
+		if (execvp(info->cmd_path, info->args) == -1)
+		{
+			perror("execvp");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
 {
-    /* Processus parent : attendre la fin du processus enfant */
-    if (waitpid(pid, &status, 0) == -1) /* Premier appel à waitpid */
-    {
-        perror("waitpid");
-        exit(EXIT_FAILURE);
-    }
+	/* Processus parent : attendre la fin du processus enfant */
+	if (waitpid(pid, &status, 0) == -1) /* Premier appel à waitpid */
+	{
+		perror("waitpid");
+		exit(EXIT_FAILURE);
+	}
 
-    while (!WIFEXITED(status) && !WIFSIGNALED(status)) /* Vérifie si le processus est terminé */
-    {
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid");
-            exit(EXIT_FAILURE);
-        }
-    }
+	while (!WIFEXITED(status) && !WIFSIGNALED(status)) /* processus terminé? */
+	{
+		if (waitpid(pid, &status, 0) == -1)
+		{
+			perror("waitpid");
+			exit(EXIT_FAILURE);
+		}
+	}
 
-    info->status = status;  /* Mettre à jour le statut de la commande */
+	info->status = status;  /* Mettre à jour le statut de la commande */
 }
 
 }
 
 /**
-* parse_input - Split the input string into arguments and find the command path.
+* parse_input - Split the input string into arguments and find the command path
 * @info: The shell info structure containing input.
 */
 void parse_input(shell_info_t *info)
 {
-    char *token;
-    int i = 0;
+	char *token;
+	int i = 0;
 
-    /* Allouer de la mémoire pour les arguments */
-    info->args = malloc(MAX_INPUT * sizeof(char *));
-    if (!info->args)
-    {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
+	/* Allouer de la mémoire pour les arguments */
+	info->args = malloc(MAX_INPUT * sizeof(char *));
+	if (!info->args)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
 
-    /* Séparer la commande et les arguments */
-    token = strtok(info->input, " ");
-    while (token != NULL)
-    {
-        info->args[i] = token;
-        token = strtok(NULL, " ");
-        i++;
-    }
-    info->args[i] = NULL;  /* Terminer le tableau des arguments par NULL */
+	/* Séparer la commande et les arguments */
+	token = strtok(info->input, " ");
+	while (token != NULL)
+	{
+		info->args[i] = token;
+		token = strtok(NULL, " ");
+		i++;
+	}
+	info->args[i] = NULL;  /* Terminer le tableau des arguments par NULL */
 
-    /* Définir le chemin de la commande (ici, on suppose qu'elle est dans le PATH) */
-    info->cmd_path = info->args[0];
+	/* Définir le chemin de la commande */
+	info->cmd_path = info->args[0];
 }
 
 /**
@@ -88,53 +88,44 @@ void parse_input(shell_info_t *info)
 */
 int main(void)
 {
-    shell_info_t info;
-    char input[MAX_INPUT];
-    ssize_t nread;
+	shell_info_t info;
+	char input[MAX_INPUT];
+	ssize_t nread;
 
-    while (1)
-    {
-        /* Afficher le prompt */
-        write(STDOUT_FILENO, "prompt> ", 9);
+	while (1)
+	{
+		write(STDOUT_FILENO, "prompt> ", 9);
 
-        /* Lire l'entrée utilisateur */
-        nread = read(STDIN_FILENO, input, MAX_INPUT);
-        if (nread == -1)
-        {
-            perror("read");
-            exit(EXIT_FAILURE);
-        }
+		nread = read(STDIN_FILENO, input, MAX_INPUT);
+		if (nread == -1)
+		{
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
 
-        /* Supprimer le caractère de nouvelle ligne si présent */
-        if (input[nread - 1] == '\n')
-            input[nread - 1] = '\0';
+		/* Supprimer le caractère de nouvelle ligne si présent */
+		if (input[nread - 1] == '\n')
+			input[nread - 1] = '\0';
 
-        /* Vérifier si l'entrée est vide */
-        if (_strlen(input) == 0)
-            continue;
+		if (_strlen(input) == 0)
+			continue;
 
-        /* Comparer pour "exit" et quitter si nécessaire */
-        if (_strcmp(input, "exit") == 0)
-            break;
+		if (_strcmp(input, "exit") == 0)
+			break;
 
-        /* Initialiser la structure */
-        info.input = _strdup(input);  /* Allouer une copie de l'entrée */
-        if (!info.input)
-        {
-            perror("strdup");
-            exit(EXIT_FAILURE);
-        }
+		/* Initialiser la structure */
+		info.input = _strdup(input);  /* Allouer une copie de l'entrée */
+		if (!info.input)
+		{
+			perror("strdup");
+			exit(EXIT_FAILURE);
+		}
 
-        /* Analyser l'entrée pour obtenir les arguments et le chemin de la commande */
-        parse_input(&info);
+		parse_input(&info);
+		execute_command(&info);
+		free(info.input);
+		free(info.args);
+	}
 
-        /* Exécuter la commande entrée par l'utilisateur */
-        execute_command(&info);
-
-        /* Libérer la mémoire allouée pour l'entrée */
-        free(info.input);
-        free(info.args);
-    }
-
-    return 0;
+	return (0);
 }
