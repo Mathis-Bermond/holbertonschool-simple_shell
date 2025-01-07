@@ -2,7 +2,6 @@
 
 /**
  * wait_sys - wait for child process to finish
- * @status: status of the child process
  * Return: void
  */
 
