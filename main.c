@@ -4,8 +4,44 @@
 
 
 /**
+* child_process - Executes a command in a child process.
+* @info: The shell info structure containing command and arguments.
+*/
+void child_process(shell_info_t *info)
+{
+	if (execve(info->cmd_path, info->args, environ) == -1)
+	{
+		perror("execve");
+		exit(EXIT_FAILURE);
+	}
+}
+
+/**
+* parent_process - Waits for the child process to finish.
+* @pid: The process ID of the child process.
+* @status: Pointer to the status variable to store the exit status.
+*/
+void parent_process(pid_t pid, int *status)
+{
+	if (waitpid(pid, status, 0) == -1)
+	{
+		perror("waitpid");
+		exit(EXIT_FAILURE);
+	}
+
+	while (!WIFEXITED(*status) && !WIFSIGNALED(*status))
+	{
+		if (waitpid(pid, status, 0) == -1)
+		{
+			perror("waitpid");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+/**
 * execute_command - Forks a child process to execute a command.
-* @info: The shell info structure containing input and arguments.
+* @info: The shell info structure containing command and arguments.
 */
 void execute_command(shell_info_t *info)
 {
@@ -20,35 +56,15 @@ void execute_command(shell_info_t *info)
 	}
 	else if (pid == 0)
 	{
-		/* Processus enfant : exécuter la commande */
-		if (execve(info->cmd_path, info->args) == -1)
-		{
-			perror("execve");
-			exit(EXIT_FAILURE);
-		}
+		child_process(info);
 	}
 	else
-{
-	/* Processus parent : attendre la fin du processus enfant */
-	if (waitpid(pid, &status, 0) == -1) /* Premier appel à waitpid */
 	{
-		perror("waitpid");
-		exit(EXIT_FAILURE);
+		parent_process(pid, &status);
+		info->status = status;
 	}
-
-	while (!WIFEXITED(status) && !WIFSIGNALED(status)) /* processus terminé? */
-	{
-		if (waitpid(pid, &status, 0) == -1)
-		{
-			perror("waitpid");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	info->status = status;  /* Mettre à jour le statut de la commande */
 }
 
-}
 
 /**
 * parse_input - Split the input string into arguments and find the command path
@@ -57,6 +73,7 @@ void execute_command(shell_info_t *info)
 void parse_input(shell_info_t *info)
 {
 	char *token;
+
 	int i = 0;
 
 	/* Allouer de la mémoire pour les arguments */
@@ -90,6 +107,7 @@ int main(void)
 {
 	shell_info_t info;
 	char input[MAX_INPUT];
+
 	ssize_t nread;
 
 	while (1)
@@ -126,6 +144,5 @@ int main(void)
 		free(info.input);
 		free(info.args);
 	}
-
 	return (0);
 }
