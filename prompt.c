@@ -44,4 +44,3 @@ void prompt(shell_info_t *info)
 
 	free(line);
 }
-
