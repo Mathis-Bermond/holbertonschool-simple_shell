@@ -40,6 +40,8 @@ void prompt(shell_info_t *info);
 void process_input(shell_info_t *info);
 void execute_command(shell_info_t *info);
 void free_shell_info(shell_info_t *info);
+void get_pid(void);
+void ppid(void);
 
 #endif
 
