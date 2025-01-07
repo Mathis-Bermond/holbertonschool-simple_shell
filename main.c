@@ -48,6 +48,13 @@ void execute_command(shell_info_t *info)
 	pid_t pid;
 	int status;
 
+	if (info->cmd_path == NULL)
+	{
+		perror("No command to execute");
+		return;
+	}
+
+
 	pid = fork();
 	if (pid == -1)
 	{
@@ -64,6 +71,7 @@ void execute_command(shell_info_t *info)
 		info->status = status;
 	}
 }
+
 
 
 /**
@@ -95,8 +103,16 @@ void parse_input(shell_info_t *info)
 	info->args[i] = NULL;  /* Terminer le tableau des arguments par NULL */
 
 	/* Définir le chemin de la commande */
-	info->cmd_path = info->args[0];
+	if (i > 0)
+	{
+		info->cmd_path = info->args[0]; /* Use la 1ere partie comme chemin de cmd */
+	}
+	else
+	{
+		info->cmd_path = NULL;
+	}
 }
+
 
 /**
 * main - Entry point of the shell program.
@@ -105,44 +121,56 @@ void parse_input(shell_info_t *info)
 */
 int main(void)
 {
-	shell_info_t info;
-	char input[MAX_INPUT];
+    shell_info_t info;
+    char input[MAX_INPUT];
+    ssize_t nread;
+    int interactive = isatty(STDIN_FILENO); /* Check if input is from a terminal */
 
-	ssize_t nread;
+    while (1)
+    {
+        /* Display prompt only in interactive mode */
+        if (interactive)
+            write(STDOUT_FILENO, "$ ", 3);
 
-	while (1)
-	{
-		write(STDOUT_FILENO, "prompt> ", 9);
+        nread = read(STDIN_FILENO, input, MAX_INPUT);
+        if (nread == -1)
+        {
+            perror("read");
+            exit(EXIT_FAILURE);
+        }
 
-		nread = read(STDIN_FILENO, input, MAX_INPUT);
-		if (nread == -1)
-		{
-			perror("read");
-			exit(EXIT_FAILURE);
-		}
+        /* Handle end of file (Ctrl+D) */
+        if (nread == 0)
+            break;
 
-		/* Supprimer le caractère de nouvelle ligne si présent */
-		if (input[nread - 1] == '\n')
-			input[nread - 1] = '\0';
+        /* Remove newline character if present */
+        if (nread > 0 && input[nread - 1] == '\n')
+            input[nread - 1] = '\0';
 
-		if (_strlen(input) == 0)
-			continue;
+        /* Skip empty input */
+        if (_strlen(input) == 0)
+            continue;
 
-		if (_strcmp(input, "exit") == 0)
-			break;
+        /* Exit command */
+        if (_strcmp(input, "exit") == 0)
+            break;
 
-		/* Initialiser la structure */
-		info.input = _strdup(input);  /* Allouer une copie de l'entrée */
-		if (!info.input)
-		{
-			perror("strdup");
-			exit(EXIT_FAILURE);
-		}
+        /* Copy input */
+        info.input = _strdup(input);
+        if (!info.input)
+        {
+            perror("strdup");
+            exit(EXIT_FAILURE);
+        }
 
-		parse_input(&info);
-		execute_command(&info);
-		free(info.input);
-		free(info.args);
-	}
-	return (0);
+        /* Parse and execute command */
+        parse_input(&info);
+        execute_command(&info);
+
+        /* Free resources */
+        free(info.input);
+        free(info.args);
+    }
+    return (0);
 }
+
