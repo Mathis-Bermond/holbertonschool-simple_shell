@@ -121,56 +121,45 @@ void parse_input(shell_info_t *info)
 */
 int main(void)
 {
-    shell_info_t info;
-    char input[MAX_INPUT];
-    ssize_t nread;
-    int interactive = isatty(STDIN_FILENO); /* Check if input is from a terminal */
+	shell_info_t info;
+	char input[MAX_INPUT];
+	ssize_t nread;
+	int interactive = isatty(STDIN_FILENO);
 
-    while (1)
-    {
-        /* Display prompt only in interactive mode */
-        if (interactive)
-            write(STDOUT_FILENO, "$ ", 3);
+	while (1)
+	{
+		if (interactive)
+			write(STDOUT_FILENO, "$ ", 3);
 
-        nread = read(STDIN_FILENO, input, MAX_INPUT);
-        if (nread == -1)
-        {
-            perror("read");
-            exit(EXIT_FAILURE);
-        }
+		nread = read(STDIN_FILENO, input, MAX_INPUT);
+		if (nread == -1)
+		{
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
+		if (nread == 0)
+			break;
 
-        /* Handle end of file (Ctrl+D) */
-        if (nread == 0)
-            break;
+		if (nread > 0 && input[nread - 1] == '\n')
+			input[nread - 1] = '\0';
 
-        /* Remove newline character if present */
-        if (nread > 0 && input[nread - 1] == '\n')
-            input[nread - 1] = '\0';
+		if (_strlen(input) == 0)
+			continue;
 
-        /* Skip empty input */
-        if (_strlen(input) == 0)
-            continue;
+		if (_strcmp(input, "exit") == 0)
+			break;
 
-        /* Exit command */
-        if (_strcmp(input, "exit") == 0)
-            break;
-
-        /* Copy input */
-        info.input = _strdup(input);
-        if (!info.input)
-        {
-            perror("strdup");
-            exit(EXIT_FAILURE);
-        }
-
-        /* Parse and execute command */
-        parse_input(&info);
-        execute_command(&info);
-
-        /* Free resources */
-        free(info.input);
-        free(info.args);
-    }
-    return (0);
+		info.input = _strdup(input);
+		if (!info.input)
+		{
+			perror("strdup");
+			exit(EXIT_FAILURE);
+		}
+		parse_input(&info);
+		execute_command(&info);
+		free(info.input);
+		free(info.args);
+	}
+return (0);
 }
 
