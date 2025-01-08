@@ -2,10 +2,13 @@
 
 #define MAX_INPUT 1024
 
-
 /**
-* child_process - Executes a command in a child process.
-* @info: The shell info structure containing command and arguments.
+* child_process - Executes the command in a child process.
+* @info: Pointer to the shell information structure.
+*
+* This function forks a new process to execute the command specified
+* in the shell information structure. It handles the execution of the
+* command and any necessary cleanup in the child process.
 */
 void child_process(shell_info_t *info)
 {
@@ -18,8 +21,11 @@ void child_process(shell_info_t *info)
 
 /**
 * parent_process - Waits for the child process to finish.
-* @pid: The process ID of the child process.
+* @pid: Process ID of the child process.
 * @status: Pointer to the status variable to store the exit status.
+*
+* This function waits for the child process to finish and handles
+* any necessary cleanup in the parent process.
 */
 void parent_process(pid_t pid, int *status)
 {
@@ -40,8 +46,12 @@ void parent_process(pid_t pid, int *status)
 }
 
 /**
-* execute_command - Forks a child process to execute a command.
-* @info: The shell info structure containing command and arguments.
+* execute_command - Forks a process to execute a command.
+* @info: Pointer to the shell information structure.
+*
+* This function forks a new process to execute the command specified
+* in the shell information structure. It handles the execution of the
+* command and any necessary cleanup in both the child and parent processes.
 */
 void execute_command(shell_info_t *info)
 {
@@ -53,7 +63,6 @@ void execute_command(shell_info_t *info)
 		perror("No command to execute");
 		return;
 	}
-
 
 	pid = fork();
 	if (pid == -1)
@@ -72,11 +81,12 @@ void execute_command(shell_info_t *info)
 	}
 }
 
-
-
 /**
-* parse_input - Split the input string into arguments and find the command path
-* @info: The shell info structure containing input.
+* parse_input - Parses the input string into command and arguments.
+* @info: Pointer to the shell information structure.
+*
+* This function tokenizes the input string and stores the command and
+* arguments in the shell information structure.
 */
 void parse_input(shell_info_t *info)
 {
@@ -92,7 +102,6 @@ void parse_input(shell_info_t *info)
 		exit(EXIT_FAILURE);
 	}
 
-	/* Séparer la commande et les arguments */
 	token = strtok(info->input, " ");
 	while (token != NULL)
 	{
@@ -100,12 +109,11 @@ void parse_input(shell_info_t *info)
 		token = strtok(NULL, " ");
 		i++;
 	}
-	info->args[i] = NULL;  /* Terminer le tableau des arguments par NULL */
+	info->args[i] = NULL;  /* Terminer le tableau des arguments */
 
-	/* Définir le chemin de la commande */
 	if (i > 0)
 	{
-		info->cmd_path = info->args[0]; /* Use la 1ere partie comme chemin de cmd */
+		info->cmd_path = info->args[0];
 	}
 	else
 	{
@@ -113,9 +121,12 @@ void parse_input(shell_info_t *info)
 	}
 }
 
-
 /**
 * main - Entry point of the shell program.
+*
+* This function initializes the shell information structure,
+* reads input from the user, parses the input, and executes
+* the command in a loop until the user exits.
 *
 * Return: Always 0.
 */
@@ -160,5 +171,5 @@ int main(void)
 		free(info.input);
 		free(info.args);
 	}
-return (0);
+	return (0);
 }
