@@ -11,7 +11,7 @@ void child_process(shell_info_t *info)
 {
 	if (execve(info->cmd_path, info->args, environ) == -1)
 	{
-		perror("execve");
+		perror("./hsh");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -162,4 +162,3 @@ int main(void)
 	}
 return (0);
 }
-

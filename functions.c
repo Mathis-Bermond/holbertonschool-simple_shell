@@ -79,3 +79,60 @@ int _strcmp(char *s1, char *s2)
 
 	return (s1[i] - s2[i]);
 }
+
+/**
+* *_strcat - append string to another
+* description: append src string to dest string
+* @src: source string
+* @dest: destination string
+* Return: resulting string dest
+*/
+
+char *_strcat(char *dest, char *src)
+{
+	int length = 0;
+	int i = 0;
+
+	while (dest[length] != '\0')
+	{
+		length++;
+	}
+
+
+	while (src[i] != '\0')
+	{
+		dest[length] = src[i];
+		length++;
+		i++;
+	}
+
+	dest[length] = '\0';
+
+	return (dest);
+}
+
+/**
+* *_strcpy - copy the string pointed
+* description: copies the string pointed, including the terminating null byte
+* @src: source
+* @dest: destination
+* Return: dest value
+*/
+
+char *_strcpy(char *dest, char *src)
+{
+	int i;
+	int length = 0;
+
+	while (src[length] != '\0')
+	{
+		length++;
+	}
+
+	for (i = 0; i < length ; i++)
+	{
+		dest[i] = src[i];
+	}
+	dest[length] = '\0';
+	return (dest);
+}
