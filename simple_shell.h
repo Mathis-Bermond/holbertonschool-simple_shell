@@ -18,6 +18,7 @@ char *_strdup(char *str);
 int _strcmp(char *s1, char *s2);
 char *_strcat(char *dest, char *src);
 char *_strcpy(char *dest, char *src);
+char *_getenv(const char *name);
 
 
 /**
