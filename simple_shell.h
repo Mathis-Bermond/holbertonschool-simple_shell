@@ -26,7 +26,7 @@ char *_strcat(char *dest, char *src);
 
 char *_strcpy(char *dest, char *src);
 
-char *_getenv(const char *name);
+char *_strchr(char *s, char c);
 
 void trim_whitespace(char *str);
 

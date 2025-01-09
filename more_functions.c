@@ -1,28 +1,27 @@
 #include "simple_shell.h"
 
 /**
-* _getenv - Gets the value of an environment variable
-* @name: The name of the environment variable
-*
-* Return: Pointer to the value of the env variable, or NULL if not found
+* *_strchr - locate character
+* description: locate a character in a string
+* @s: represent a given string.
+* @c: refers to specific character to be searched in a given string.
+* Return: pointer to the first occurrence or NULL if the character is not found
 */
-char *_getenv(const char *name)
+
+char *_strchr(char *s, char c)
 {
-	int i = 0, j;
-
-	if (!name || !environ)
-		return (NULL);
-
-	while (environ[i])
+	while (*s != '\0')
 	{
-		j = 0;
-		while (name[j] && environ[i][j] && name[j] == environ[i][j])
-			j++;
+		if (*s == c)
+		{
+			return (s);
+		}
+		s++;
+	}
 
-		if (name[j] == '\0' && environ[i][j] == '=')
-			return (environ[i] + j + 1);
-
-		i++;
+	if (c == '\0')
+	{
+		return (s);
 	}
 
 	return (NULL);
@@ -99,12 +98,13 @@ char *find_command_in_path(char *cmd)
     char *cmd_path = NULL;
     int i = 0;
 
-    /* Locate the PATH variable in the environment */
+    /* Localiser la variable PATH dans l'environnement sans utiliser strncmp */
     while (environ[i])
     {
-        if (strncmp(environ[i], "PATH=", 5) == 0)
+        if (environ[i][0] == 'P' && environ[i][1] == 'A' && environ[i][2] == 'T' &&
+            environ[i][3] == 'H' && environ[i][4] == '=')
         {
-            path = environ[i] + 5;
+            path = environ[i] + 5;  /* Ignorer "PATH=" */
             break;
         }
         i++;
@@ -113,14 +113,16 @@ char *find_command_in_path(char *cmd)
     if (!path)
         return (NULL);
 
-    /* Duplicate the PATH to tokenize it */
+    /* Dupliquer la variable PATH pour pouvoir la tokeniser */
     path_copy = _strdup(path);
     if (!path_copy)
         return (NULL);
 
+    /* Tokeniser la variable PATH en utilisant ":" comme séparateur */
     dir = strtok(path_copy, ":");
     while (dir)
     {
+        /* Allouer de la mémoire pour le chemin complet de la commande */
         cmd_path = malloc(_strlen(dir) + _strlen(cmd) + 2);
         if (!cmd_path)
         {
@@ -128,12 +130,13 @@ char *find_command_in_path(char *cmd)
             return (NULL);
         }
 
-        /* Construct the full path: dir + "/" + cmd */
+        /* Construire le chemin complet : répertoire + "/" + commande */
         _strcpy(cmd_path, dir);
         _strcat(cmd_path, "/");
         _strcat(cmd_path, cmd);
 
-        if (access(cmd_path, X_OK) == 0) /* Check if command is executable */
+        /* Vérifier si la commande existe et est exécutable */
+        if (access(cmd_path, X_OK) == 0)
         {
             free(path_copy);
             return (cmd_path);
@@ -144,5 +147,8 @@ char *find_command_in_path(char *cmd)
     }
 
     free(path_copy);
-    return (NULL); /* Command not found in PATH */
+    return (NULL); 
 }
+
+
+
