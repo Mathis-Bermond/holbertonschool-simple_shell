@@ -35,6 +35,7 @@ char *_getenv(const char *name)
 void trim_whitespace(char *str)
 {
 	int start = 0;
+
 	int i;
 
 	int end = _strlen(str) - 1;
@@ -63,4 +64,85 @@ void trim_whitespace(char *str)
 	{
 		str[0] = '\0';  /* Empty string case */
 	}
+}
+
+/**
+* print_env - Prints the environment variables
+* @info: Pointer to the shell information structure
+*/
+void print_env(shell_info_t *info)
+{
+	int i = 0;
+
+	(void)info;  /* Évite l'avertissement si info n'est pas utilisé */
+
+	/* Parcours de la liste d'environnement et affichage */
+	while (environ[i] != NULL)
+	{
+		write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
+		write(STDOUT_FILENO, "\n", 1);
+		i++;
+	}
+}
+
+/**
+ * find_command_in_path - Finds the full path of a command
+ * @cmd: Command to find
+ *
+ * Return: Full path to the command if found, NULL otherwise
+ */
+char *find_command_in_path(char *cmd)
+{
+    char *path = NULL;
+    char *path_copy = NULL;
+    char *dir = NULL;
+    char *cmd_path = NULL;
+    int i = 0;
+
+    /* Locate the PATH variable in the environment */
+    while (environ[i])
+    {
+        if (strncmp(environ[i], "PATH=", 5) == 0)
+        {
+            path = environ[i] + 5;
+            break;
+        }
+        i++;
+    }
+
+    if (!path)
+        return (NULL);
+
+    /* Duplicate the PATH to tokenize it */
+    path_copy = _strdup(path);
+    if (!path_copy)
+        return (NULL);
+
+    dir = strtok(path_copy, ":");
+    while (dir)
+    {
+        cmd_path = malloc(_strlen(dir) + _strlen(cmd) + 2);
+        if (!cmd_path)
+        {
+            free(path_copy);
+            return (NULL);
+        }
+
+        /* Construct the full path: dir + "/" + cmd */
+        _strcpy(cmd_path, dir);
+        _strcat(cmd_path, "/");
+        _strcat(cmd_path, cmd);
+
+        if (access(cmd_path, X_OK) == 0) /* Check if command is executable */
+        {
+            free(path_copy);
+            return (cmd_path);
+        }
+
+        free(cmd_path);
+        dir = strtok(NULL, ":");
+    }
+
+    free(path_copy);
+    return (NULL); /* Command not found in PATH */
 }

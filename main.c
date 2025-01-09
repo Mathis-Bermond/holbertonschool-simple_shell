@@ -37,41 +37,60 @@
 	}
 	}
 
-	/**
-	* execute_command - Forks a process to execute a command.
-	* @info: Pointer to the shell information structure.
-	* description: This function forks a new process to execute the command
-	* specified in the shell information structure. It handles the execution
-	* of the
-	* command and any necessary cleanup in both the child and parent processes.
-	*/
-	void execute_command(shell_info_t *info)
-	{
+/**
+* execute_command - Executes a command in a child process.
+* @info: Pointer to the shell information structure.
+*
+* This function forks a new process to execute the command specified
+* in the shell information structure. It handles the execution of the
+* command and any necessary cleanup in the child process.
+*/
+void execute_command(shell_info_t *info)
+{
+	char *cmd_path;
+
 	pid_t pid;
 	int status;
 
-	if (info->cmd_path == NULL)
+	/* Extraire la commande et les arguments */
+	char *cmd = info->args[0];
+
+	/* Si la commande contient un chemin absolu (par exemple, "/bin/ls") */
+	if (cmd[0] == '/')
 	{
-		fprintf(stderr, "Command not found\n");
+		cmd_path = cmd;
+	}
+	else
+	{
+		cmd_path = find_command_in_path(cmd);
+	}
+
+	if (!cmd_path)
+	{
+		fprintf(stderr, "%s: command not found\n", cmd);
 		return;
 	}
 
 	pid = fork();
-	if (pid == -1)
+	if (pid == 0)  /* Processus fils */
 	{
-		perror("fork");
-		exit(EXIT_FAILURE);
+		if (execve(cmd_path, info->args, environ) == -1)
+		{
+			perror("execve");
+			exit(errno);
+		}
 	}
-	else if (pid == 0)
+	else if (pid > 0)  /* Processus père */
 	{
-		child_process(info);
+		wait(&status);  /* Attendre la fin du processus fils */
 	}
 	else
 	{
-		parent_process(pid, &status);
-		info->status = status;
+		perror("fork");
 	}
-	}
+}
+
+
 
 	/**
 	* parse_input - Parses the input string into command and arguments.
@@ -80,12 +99,12 @@
 	* @info: Pointer to the shell information structure.
 	*/
 	void parse_input(shell_info_t *info)
-	{
+{
 	char *token;
 
 	int i = 0;
 
-	/* Allocate memory for arguments */
+	/* Allocation de la mémoire pour les arguments */
 	info->args = malloc(MAX_INPUT * sizeof(char *));
 	if (!info->args)
 	{
@@ -101,7 +120,7 @@
 		token = strtok(NULL, " ");
 		i++;
 	}
-	info->args[i] = NULL; /* Terminate the arguments array */
+	info->args[i] = NULL; /* Terminer le tableau d'arguments */
 
 	if (i > 0)
 	{
@@ -111,7 +130,14 @@
 	{
 		info->cmd_path = NULL;
 	}
+
+	/* Si la commande est 'env', afficher l'environnement */
+	if (info->cmd_path != NULL && _strcmp(info->cmd_path, "env") == 0)
+	{
+		print_env(info);
+		return;
 	}
+}
 
 
 	/**
