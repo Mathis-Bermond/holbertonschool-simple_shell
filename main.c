@@ -122,48 +122,45 @@
 	* Return: Always 0.
 	*/
 	int main(void)
-	{
+{
 	shell_info_t info;
-	char input[MAX_INPUT];
-
+	char *line = NULL;
+	size_t len = 0;
 	ssize_t nread;
 	int interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
-		memset(&info, 0, sizeof(shell_info_t)); /* Initialize structure */
-
+		/* Affichage du prompt si interactif */
 		if (interactive)
 			write(STDOUT_FILENO, "$ ", 2);
 
-		nread = read(STDIN_FILENO, input, MAX_INPUT);
-		if (nread == -1)
+		/* Lecture de l'entrée utilisateur */
+		nread = getline(&line, &len, stdin);
+		if (nread == -1) /* Gestion de Ctrl+D */
 		{
-			perror("read");
-			exit(EXIT_FAILURE);
-		}
-		if (nread == 0)
+			if (interactive)
+				write(STDOUT_FILENO, "\n", 1);
 			break;
+		}
 
-		if (nread > 0 && input[nread - 1] == '\n')
-			input[nread - 1] = '\0';
+		/* Retirer le saut de ligne de l'entrée */
+		if (line[nread - 1] == '\n')
+			line[nread - 1] = '\0';
 
-		if (_strlen(input) == 0)
+		/* Ignorer les lignes vides */
+		if (_strlen(line) == 0)
 			continue;
 
-		if (_strcmp(input, "exit") == 0)
+		/* Quitter si l'utilisateur tape 'exit' */
+		if (_strcmp(line, "exit") == 0)
 			break;
 
-		info.input = _strdup(input);
-		if (!info.input)
-		{
-			perror("strdup");
-			continue;
-		}
+		info.input = line;
 		parse_input(&info);
 		execute_command(&info);
-		free(info.input);
 		free(info.args);
 	}
+	free(line);
 	return (0);
-	}
+}
