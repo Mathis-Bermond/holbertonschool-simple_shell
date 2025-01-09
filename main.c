@@ -1,66 +1,58 @@
-#include "simple_shell.h"
+	#include "simple_shell.h"
 
-#define MAX_INPUT 1024
+	#define MAX_INPUT 1024
 
-/**
-* child_process - Executes the command in a child process.
-* @info: Pointer to the shell information structure.
-*
-* This function forks a new process to execute the command specified
-* in the shell information structure. It handles the execution of the
-* command and any necessary cleanup in the child process.
-*/
-void child_process(shell_info_t *info)
-{
+	/**
+	* child_process - Executes the command in a child process.
+	* @info: Pointer to the shell information structure.
+	*
+	* This function forks a new process to execute the command specified
+	* in the shell information structure. It handles the execution of the
+	* command and any necessary cleanup in the child process.
+	*/
+	void child_process(shell_info_t *info)
+	{
 	if (execve(info->cmd_path, info->args, environ) == -1)
 	{
 		perror("./hsh");
 		exit(EXIT_FAILURE);
 	}
-}
+	}
 
-/**
-* parent_process - Waits for the child process to finish.
-* @pid: Process ID of the child process.
-* @status: Pointer to the status variable to store the exit status.
-*
-* This function waits for the child process to finish and handles
-* any necessary cleanup in the parent process.
-*/
-void parent_process(pid_t pid, int *status)
-{
+	/**
+	* parent_process - Waits for the child process to finish.
+	* @pid: Process ID of the child process.
+	* @status: Pointer to the status variable to store the exit status.
+	*
+	* This function waits for the child process to finish and handles
+	* any necessary cleanup in the parent process.
+	*/
+	void parent_process(pid_t pid, int *status)
+
+	{
 	if (waitpid(pid, status, 0) == -1)
 	{
 		perror("waitpid");
 		exit(EXIT_FAILURE);
 	}
-
-	while (!WIFEXITED(*status) && !WIFSIGNALED(*status))
-	{
-		if (waitpid(pid, status, 0) == -1)
-		{
-			perror("waitpid");
-			exit(EXIT_FAILURE);
-		}
 	}
-}
 
-/**
-* execute_command - Forks a process to execute a command.
-* @info: Pointer to the shell information structure.
-*
-* This function forks a new process to execute the command specified
-* in the shell information structure. It handles the execution of the
-* command and any necessary cleanup in both the child and parent processes.
-*/
-void execute_command(shell_info_t *info)
-{
+	/**
+	* execute_command - Forks a process to execute a command.
+	* @info: Pointer to the shell information structure.
+	* description: This function forks a new process to execute the command
+	* specified in the shell information structure. It handles the execution
+	* of the
+	* command and any necessary cleanup in both the child and parent processes.
+	*/
+	void execute_command(shell_info_t *info)
+	{
 	pid_t pid;
 	int status;
 
 	if (info->cmd_path == NULL)
 	{
-		perror("No command to execute");
+		fprintf(stderr, "Command not found\n");
 		return;
 	}
 
@@ -79,26 +71,26 @@ void execute_command(shell_info_t *info)
 		parent_process(pid, &status);
 		info->status = status;
 	}
-}
+	}
 
-/**
-* parse_input - Parses the input string into command and arguments.
-* @info: Pointer to the shell information structure.
-*
-* This function tokenizes the input string and stores the command and
-* arguments in the shell information structure.
-*/
-void parse_input(shell_info_t *info)
-{
+	/**
+	* parse_input - Parses the input string into command and arguments.
+	* description: This function tokenizes the input string and stores the command
+	* and arguments in the shell information structure.
+	* @info: Pointer to the shell information structure.
+	*/
+	void parse_input(shell_info_t *info)
+	{
 	char *token;
 
 	int i = 0;
 
-	/* Allouer de la mémoire pour les arguments */
+	/* Allocate memory for arguments */
 	info->args = malloc(MAX_INPUT * sizeof(char *));
 	if (!info->args)
 	{
 		perror("malloc");
+		free(info->input);
 		exit(EXIT_FAILURE);
 	}
 
@@ -109,7 +101,7 @@ void parse_input(shell_info_t *info)
 		token = strtok(NULL, " ");
 		i++;
 	}
-	info->args[i] = NULL;  /* Terminer le tableau des arguments */
+	info->args[i] = NULL; /* Terminate the arguments array */
 
 	if (i > 0)
 	{
@@ -119,28 +111,30 @@ void parse_input(shell_info_t *info)
 	{
 		info->cmd_path = NULL;
 	}
-}
+	}
 
-/**
-* main - Entry point of the shell program.
-*
-* This function initializes the shell information structure,
-* reads input from the user, parses the input, and executes
-* the command in a loop until the user exits.
-*
-* Return: Always 0.
-*/
-int main(void)
-{
+
+	/**
+	* main - Entry point of the shell program.
+	* description: This function initializes the shell information structure,
+	* reads input from the user, parses the input, and executes
+	* the command in a loop until the user exits.
+	* Return: Always 0.
+	*/
+	int main(void)
+	{
 	shell_info_t info;
 	char input[MAX_INPUT];
+
 	ssize_t nread;
 	int interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
+		memset(&info, 0, sizeof(shell_info_t)); /* Initialize structure */
+
 		if (interactive)
-			write(STDOUT_FILENO, "$ ", 3);
+			write(STDOUT_FILENO, "$ ", 2);
 
 		nread = read(STDIN_FILENO, input, MAX_INPUT);
 		if (nread == -1)
@@ -164,7 +158,7 @@ int main(void)
 		if (!info.input)
 		{
 			perror("strdup");
-			exit(EXIT_FAILURE);
+			continue;
 		}
 		parse_input(&info);
 		execute_command(&info);
@@ -172,4 +166,4 @@ int main(void)
 		free(info.args);
 	}
 	return (0);
-}
+	}
