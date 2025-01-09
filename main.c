@@ -125,6 +125,7 @@
 {
 	shell_info_t info;
 	char *line = NULL;
+
 	size_t len = 0;
 	ssize_t nread;
 	int interactive = isatty(STDIN_FILENO);
@@ -135,13 +136,6 @@
 			write(STDOUT_FILENO, "$ ", 2);
 
 		nread = getline(&line, &len, stdin);
-
-		trim_whitespace(line);
-
-		/* Ignorer les lignes vides ou avec uniquement des espaces */
-		if (_strlen(line) == 0)
-			continue;
-
 		if (nread == -1) /* Gestion de Ctrl+D */
 		{
 			if (interactive)
@@ -152,6 +146,12 @@
 		/* Retirer le saut de ligne de l'entrée */
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
+
+		trim_whitespace(line);
+
+		/* Ignorer les lignes vides */
+		if (_strlen(line) == 0)
+			continue;
 
 		if (_strcmp(line, "exit") == 0)
 			break;

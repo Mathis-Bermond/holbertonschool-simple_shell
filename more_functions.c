@@ -34,17 +34,33 @@ char *_getenv(const char *name)
 */
 void trim_whitespace(char *str)
 {
-	char *end;
+	int start = 0;
+	int i;
 
-	/* Trim leading spaces */
-	while (*str == ' ')
-		str++;
+	int end = _strlen(str) - 1;
 
-	/* Trim trailing spaces */
-	end = str + _strlen(str) - 1;
-	while (end > str && *end == ' ')
+	/* Remove leading spaces */
+	while (str[start] == ' ' && str[start] != '\0')
+		start++;
+
+	/* Remove trailing spaces */
+	while (end > start && str[end] == ' ')
 		end--;
 
-	/* Write new null terminator */
-	*(end + 1) = '\0';
+	/* Shift the string to the left */
+	if (start > 0)
+	{
+		for (i = 0; str[start + i] != '\0'; i++)
+
+		{
+			str[i] = str[start + i];
+		}
+		str[end - start + 1] = '\0';  /* Null-terminate the string */
+	}
+
+	/* Now we also handle the case where the string was only spaces */
+	if (end < 0)
+	{
+		str[0] = '\0';  /* Empty string case */
+	}
 }
