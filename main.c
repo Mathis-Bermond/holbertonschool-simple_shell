@@ -131,12 +131,17 @@
 
 	while (1)
 	{
-		/* Affichage du prompt si interactif */
 		if (interactive)
 			write(STDOUT_FILENO, "$ ", 2);
 
-		/* Lecture de l'entrée utilisateur */
 		nread = getline(&line, &len, stdin);
+
+		trim_whitespace(line);
+
+		/* Ignorer les lignes vides ou avec uniquement des espaces */
+		if (_strlen(line) == 0)
+			continue;
+
 		if (nread == -1) /* Gestion de Ctrl+D */
 		{
 			if (interactive)
@@ -148,11 +153,6 @@
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		/* Ignorer les lignes vides */
-		if (_strlen(line) == 0)
-			continue;
-
-		/* Quitter si l'utilisateur tape 'exit' */
 		if (_strcmp(line, "exit") == 0)
 			break;
 

@@ -27,3 +27,24 @@ char *_getenv(const char *name)
 
 	return (NULL);
 }
+
+/**
+* trim_whitespace - Removes leading and trailing spaces from a string
+* @str: The string to be trimmed
+*/
+void trim_whitespace(char *str)
+{
+	char *end;
+
+	/* Trim leading spaces */
+	while (*str == ' ')
+		str++;
+
+	/* Trim trailing spaces */
+	end = str + _strlen(str) - 1;
+	while (end > str && *end == ' ')
+		end--;
+
+	/* Write new null terminator */
+	*(end + 1) = '\0';
+}
