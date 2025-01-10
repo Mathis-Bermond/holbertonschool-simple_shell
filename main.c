@@ -48,11 +48,9 @@
 void execute_command(shell_info_t *info)
 {
 	char *cmd_path;
-
 	pid_t pid;
 	int status;
 
-	/* Extraire la commande et les arguments */
 	char *cmd = info->args[0];
 
 	/* Si la commande contient un chemin absolu (par exemple, "/bin/ls") */
@@ -77,16 +75,22 @@ void execute_command(shell_info_t *info)
 		if (execve(cmd_path, info->args, environ) == -1)
 		{
 			perror("execve");
+			if (cmd[0] != '/')
+				free(cmd_path);
 			exit(errno);
 		}
 	}
 	else if (pid > 0)  /* Processus père */
 	{
 		wait(&status);  /* Attendre la fin du processus fils */
+		if (cmd[0] != '/')
+			free(cmd_path);
 	}
 	else
 	{
 		perror("fork");
+		if (cmd[0] != '/')
+			free(cmd_path);
 	}
 }
 
