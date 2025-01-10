@@ -69,19 +69,16 @@ void trim_whitespace(char *str)
 * print_env - Prints the environment variables
 * @info: Pointer to the shell information structure
 */
-void print_env(shell_info_t *info)
+void print_env(void)
 {
-	int i = 0;
+    int i = 0;
 
-	(void)info;  /* Évite l'avertissement si info n'est pas utilisé */
-
-	/* Parcours de la liste d'environnement et affichage */
-	while (environ[i] != NULL)
-	{
-		write(STDOUT_FILENO, environ[i], _strlen(environ[i]));
-		write(STDOUT_FILENO, "\n", 1);
-		i++;
-	}
+    /* Parcours de la liste d'environnement et affichage */
+    while (environ[i] != NULL)
+    {
+        printf("%s\n", environ[i]);  /* Affiche chaque variable d'environnement */
+        i++;
+    }
 }
 
 /**

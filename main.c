@@ -138,7 +138,7 @@ void execute_command(shell_info_t *info)
 	/* Si la commande est 'env', afficher l'environnement */
 	if (info->cmd_path != NULL && _strcmp(info->cmd_path, "env") == 0)
 	{
-		print_env(info);
+		print_env();
 		return;
 	}
 }

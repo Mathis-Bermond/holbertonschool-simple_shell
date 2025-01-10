@@ -52,7 +52,7 @@ typedef struct shell_info
 } shell_info_t;
 
 /* Déclaration de la fonction pour afficher l'environnement */
-void print_env(shell_info_t *info);
+void print_env(void);
 
 /* Autres fonctions */
 void prompt(shell_info_t *info);
