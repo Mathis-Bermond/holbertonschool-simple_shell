@@ -73,6 +73,9 @@ void print_env(void)
 {
     int i = 0;
 
+    if (!environ)
+		return;
+    
     /* Parcours de la liste d'environnement et affichage */
     while (environ[i] != NULL)
     {

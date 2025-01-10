@@ -1,3 +1,5 @@
+![Logo du projet](img/simple_shell.png)
+
 # Simple Shell
 
 ## Description
@@ -22,30 +24,10 @@ This project is a simple UNIX command interpreter that replicates functionalitie
 
 - There should be one project repository per group. Cloning/forking a project repository with the same name before the second deadline risks a 0% score.
 
-## More Info
-
 ### Output
 
 - Unless specified otherwise, the program must have the exact same output as `sh` (/bin/sh) as well as the exact same error output.
 - The only difference is when printing an error, the name of the program must be equivalent to `argv[0]`.
-
-#### Example of error with `sh`:
-
-```sh
-julien@ubuntu:/# echo "qwerty" | /bin/sh
-/bin/sh: 1: qwerty: not found
-julien@ubuntu:/# echo "qwerty" | /bin/../bin/sh
-/bin/../bin/sh: 1: qwerty: not found
-```
-
-#### Same error with your program `hsh`:
-
-```sh
-julien@ubuntu:/# echo "qwerty" | ./hsh
-./hsh: 1: qwerty: not found
-julien@ubuntu:/# echo "qwerty" | ./././hsh
-./././hsh: 1: qwerty: not found
-```
 
 ### List of allowed functions and system calls
 
@@ -100,28 +82,41 @@ gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
 Your shell should work like this in interactive mode:
 
 ```sh
-julien@ubuntu:/# ./hsh
+prompt:/# ./hsh
 ($) /bin/ls
 hsh main.c shell.c
 ($)
 ($) exit
-julien@ubuntu:/#
+prompt:/#
 ```
 
 But also in non-interactive mode:
 
 ```sh
-julien@ubuntu:/# echo "/bin/ls" | ./hsh
+prompt:/# echo "/bin/ls" | ./hsh
 hsh main.c shell.c test_ls_2
-julien@ubuntu:/# cat test_ls_2
+prompt:/# cat test_ls_2
 /bin/ls
 /bin/ls
-julien@ubuntu:/# cat test_ls_2 | ./hsh
+prompt:/# cat test_ls_2 | ./hsh
 hsh main.c shell.c test_ls_2
 hsh main.c shell.c test_ls_2
-julien@ubuntu:/#
+prompt:/#
+```
+
+### Checking for Memory Leaks
+
+To check for memory leaks, you can use `valgrind`:
+
+```sh
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./hsh
 ```
 
 ## Man Page
 
-(Include a screenshot of the man page here)
+![man page](img/man.png)
+
+## Authors
+
+- Jonas Jungling
+- Mathis Bermondmple Shell
