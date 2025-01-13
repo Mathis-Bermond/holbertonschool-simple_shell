@@ -112,11 +112,37 @@ To check for memory leaks, you can use `valgrind`:
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./hsh
 ```
 
-## Man Page
+## Man page
+
+Man pages are simply manual pages created to help users understand how commands are used in Linux.
+
+### Using man page
+
+```sh
+man <what you want>
+```
+
+### Our man page
 
 ![man page](img/man.png)
 
+## Flowchart
+
+![Our flowchart](img/flowchart.png)
+
 ## Authors
 
-- Jonas Jungling
-- Mathis Bermondmple Shell
+This project was completed by Jonas and Mathis
+
+----------
+
+<div style="display: flex; align-items: center; gap: 10px;">
+  <a href="https://www.linkedin.com/in/jonas-jungling">
+    <img src="./img/linkedin.png" alt="Linkedin" width="50" height="50">
+  </a>
+  <span style="margin-left: 10px; margin-right: 20px;">Jonas Jungling</span>
+  <a href="https://www.linkedin.com/in/mathis-bermond-619674260">
+    <img src="./img/linkedin.png" alt="Linkedin" width="50" height="50">
+  </a>
+  <span style="margin-left: 10px; margin-right: 20px;">Mathis Bermond</span>
+</div>
