@@ -12,6 +12,7 @@
 	*/
 	void child_process(shell_info_t *info)
 	{
+		/*execute la commande dans un processus enfant*/
 	if (execve(info->cmd_path, info->args, environ) == -1)
 	{
 		perror("./hsh");
@@ -30,7 +31,7 @@
 	void parent_process(pid_t pid, int *status)
 
 	{
-	if (waitpid(pid, status, 0) == -1)
+	if (waitpid(pid, status, 0) == -1) /*Attend la fin du processus enfant*/
 	{
 		perror("waitpid");
 		exit(EXIT_FAILURE);
@@ -47,18 +48,18 @@
 */
 void execute_command(shell_info_t *info)
 {
-	char *cmd_path;
+	char *cmd_path; /*chemin de la commande a executer*/
 	pid_t pid;
-	int status;
+	int status; /* statut de sortie du processus enfant*/
 
-	char *cmd = info->args[0];
+	char *cmd = info->args[0]; /* commande de base extraite des arguments*/
 
-	/* Si la commande contient un chemin absolu (par exemple, "/bin/ls") */
+	/* Si la commande contient un chemin absolu, on l'utilise tel quel */
 	if (cmd[0] == '/')
 	{
 		cmd_path = cmd;
 	}
-	else
+	else /*sinon on appelle la fonction pour chercher la commande dans la path*/
 	{
 		cmd_path = find_command_in_path(cmd);
 	}
@@ -69,6 +70,7 @@ void execute_command(shell_info_t *info)
 		return;
 	}
 
+	/*on crée un nouveau processus enfant avec un pid de 0*/
 	pid = fork();
 	if (pid == 0)  /* Processus fils */
 	{
@@ -82,7 +84,7 @@ void execute_command(shell_info_t *info)
 	}
 	else if (pid > 0)  /* Processus père */
 	{
-		wait(&status);  /* Attendre la fin du processus fils */
+		wait(&status);  /* Attend la fin du processus fils */
 		if (cmd[0] != '/')
 			free(cmd_path);
 	}
@@ -116,16 +118,18 @@ void execute_command(shell_info_t *info)
 		free(info->input);
 		exit(EXIT_FAILURE);
 	}
-
+	/* découpe info->input en tokens séparés par des espaces*/
 	token = strtok(info->input, " ");
 	while (token != NULL)
 	{
-		info->args[i] = token;
+		info->args[i] = token; /*chaque token est ajouté a info->args*/
 		token = strtok(NULL, " ");
 		i++;
 	}
-	info->args[i] = NULL; /* Terminer le tableau d'arguments */
+	info->args[i] = NULL; /* Termine le tableau d'arguments par un pointeur null*/
 
+	/* si au moins un token est trouvé, le 1er argument est défini */
+	/* comme commande a executer */
 	if (i > 0)
 	{
 		info->cmd_path = info->args[0];
@@ -155,29 +159,29 @@ void execute_command(shell_info_t *info)
 {
 	shell_info_t info;
 	char *line = NULL;
-
+	/*taille initiale ajusté automatiquement si buffer doit etre redimensionné*/
 	size_t len = 0;
 	ssize_t nread;
+	/*defini si le shell est en mode interactif ou non*/
 	int interactive = isatty(STDIN_FILENO);
 
 	while (1)
 	{
-		if (interactive)
+		if (interactive) /*si interactif, affiche le prompt*/
 			write(STDOUT_FILENO, "$ ", 2);
-
+		/*lit une ligne d'entrée et la stocke dans line*/
 		nread = getline(&line, &len, stdin);
 		if (nread == -1) /* Gestion de Ctrl+D */
 		{
 			if (interactive)
-				write(STDOUT_FILENO, "\n", 1);
+				write(STDOUT_FILENO, "\n", 1);/*ecrit une nouvelle ligne sur la stdout*/
 			break;
 		}
-
 		/* Retirer le saut de ligne de l'entrée */
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		trim_whitespace(line);
+		cut_whitespace(line); /*retire les espaces en début et fin*/
 
 		/* Ignorer les lignes vides */
 		if (_strlen(line) == 0)

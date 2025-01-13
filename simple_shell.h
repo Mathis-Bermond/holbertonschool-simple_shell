@@ -13,7 +13,6 @@
 
 #define MAX_INPUT 1024
 
-extern char **environ;
 
 /* Déclaration des fonctions utilitaires */
 int _strlen(char *s);
@@ -28,7 +27,7 @@ char *_strcpy(char *dest, char *src);
 
 char *_strchr(char *s, char c);
 
-void trim_whitespace(char *str);
+void cut_whitespace(char *str);
 
 char *find_command_in_path(char *cmd);
 
@@ -41,13 +40,13 @@ char *find_command_in_path(char *cmd);
 */
 typedef struct shell_info
 {
-	char *input;
+	char *input; /*chaine contenant l'entrée de l'utilisateur*/
 
-	char **args;
+	char **args; /*tableau repésentant les arguments de la commande*/
 
-	char *cmd_path;
+	char *cmd_path; /*chemin complet vers l'executable*/
 
-	int status;
+	int status; /* code retour du dernier processus exécuté*/
 
 } shell_info_t;
 
@@ -65,4 +64,4 @@ void ppid(void);
 /* Variable globale représentant l'environnement */
 extern char **environ;
 
-#endif /* SIMPLE_SHELL_H */
+#endif
